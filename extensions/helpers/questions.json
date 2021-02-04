@@ -1,0 +1,46 @@
+{
+  "template": {
+    "inputs": [
+      {
+        "key": "topicName",
+        "question": "Provide a friendly name for your SNS topic resource:",
+        "validation": {
+          "operator": "regex",
+          "value": "^[a-zA-Z0-9]+$",
+          "onErrorMsg": "Resource name should be alphanumeric"
+        },
+        "required": true
+      },
+      {
+        "key": "producerName",
+        "question": "Provide a friendly name for your SQS producer resource:",
+        "validation": {
+          "operator": "regex",
+          "value": "^[a-zA-Z0-9]+$",
+          "onErrorMsg": "Resource name should be alphanumeric"
+        },
+        "required": true
+      },
+      {
+        "key": "consumerName",
+        "question": "Provide a friendly name for your SQS consumer resource:",
+        "validation": {
+          "operator": "regex",
+          "value": "^[a-zA-Z0-9]+$",
+          "onErrorMsg": "Resource name should be alphanumeric"
+        },
+        "required": true
+      },
+      {
+        "key": "lambda",
+        "question": "Provide a friendly name for your Lambda resource to be used as a label in the project:",
+        "validation": {
+          "operator": "regex",
+          "value": "^[a-zA-Z0-9]+$",
+          "onErrorMsg": "Resource name should be alphanumeric"
+        },
+        "required": true
+      }
+    ]
+  }
+}

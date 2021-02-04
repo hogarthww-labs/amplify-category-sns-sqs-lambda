@@ -1,0 +1,252 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Resources": {
+    "<sns-topic-name>": {
+      "Type": "AWS::SNS::Topic",
+      "Properties": {
+        "Subscription": [
+          {
+            "Endpoint": {
+              "Fn::GetAtt": ["<sqs-consumer-name>", "Arn"]
+            },
+            "Protocol": "sqs"
+          },
+          {
+            "Endpoint": {
+              "Fn::GetAtt": ["<sqs-producer-name>", "Arn"]
+            },
+            "Protocol": "sqs"
+          }
+        ]
+      }
+    },
+    "<sqs-consumer-name>": {
+      "Type": "AWS::SQS::Queue"
+    },
+    "<sqs-producer-name>": {
+      "Type": "AWS::SQS::Queue"
+    },
+    "MyPublishUser": {
+      "Type": "AWS::IAM::User",
+      "Properties": {
+        "LoginProfile": {
+          "Password": {
+            "Ref": "MyPublishUserPassword"
+          }
+        }
+      }
+    },
+    "MyPublishUserKey": {
+      "Type": "AWS::IAM::AccessKey",
+      "Properties": {
+        "UserName": {
+          "Ref": "MyPublishUser"
+        }
+      }
+    },
+    "MyPublishTopicGroup": {
+      "Type": "AWS::IAM::Group",
+      "Properties": {
+        "Policies": [
+          {
+            "PolicyName": "<sns-topic-name>GroupPolicy",
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": ["sns:Publish"],
+                  "Resource": {
+                    "Ref": "<sns-topic-name>"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "AddUserToMyPublishTopicGroup": {
+      "Type": "AWS::IAM::UserToGroupAddition",
+      "Properties": {
+        "GroupName": {
+          "Ref": "MyPublishTopicGroup"
+        },
+        "Users": [
+          {
+            "Ref": "MyPublishUser"
+          }
+        ]
+      }
+    },
+    "MyQueueUser": {
+      "Type": "AWS::IAM::User",
+      "Properties": {
+        "LoginProfile": {
+          "Password": {
+            "Ref": "MyQueueUserPassword"
+          }
+        }
+      }
+    },
+    "MyQueueUserKey": {
+      "Type": "AWS::IAM::AccessKey",
+      "Properties": {
+        "UserName": {
+          "Ref": "MyQueueUser"
+        }
+      }
+    },
+    "MyRDMessageQueueGroup": {
+      "Type": "AWS::IAM::Group",
+      "Properties": {
+        "Policies": [
+          {
+            "PolicyName": "MyQueueGroupPolicy",
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": ["sqs:DeleteMessage", "sqs:ReceiveMessage"],
+                  "Resource": [
+                    {
+                      "Fn::GetAtt": ["<sqs-consumer-name>", "Arn"]
+                    },
+                    {
+                      "Fn::GetAtt": ["<sqs-producer-name>", "Arn"]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "AddUserTo<sqs-consumer-name>Group": {
+      "Type": "AWS::IAM::UserToGroupAddition",
+      "Properties": {
+        "GroupName": {
+          "Ref": "MyRDMessageQueueGroup"
+        },
+        "Users": [
+          {
+            "Ref": "<sqs-consumer-name>User"
+          }
+        ]
+      }
+    },
+    "<sqs-consumer-name>Policy": {
+      "Type": "AWS::SQS::QueuePolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "sns.amazonaws.com"
+              },
+              "Action": ["sqs:SendMessage"],
+              "Resource": "*",
+              "Condition": {
+                "ArnEquals": {
+                  "aws:SourceArn": {
+                    "Ref": "<sns-topic-name>"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "Queues": [
+          {
+            "Ref": "<sqs-consumer-name>"
+          },
+          {
+            "Ref": "<sqs-producer-name>"
+          }
+        ]
+      }
+    },
+    "LambdaExecutionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": ["lambda.amazonaws.com"]
+              },
+              "Action": ["sts:AssumeRole"]
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": "allowLambdaLogs",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": ["logs:*"],
+                  "Resource": "arn:aws:logs:*:*:*"
+                }
+              ]
+            }
+          },
+          {
+            "PolicyName": "allowSqs",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "sqs:ReceiveMessage",
+                    "sqs:DeleteMessage",
+                    "sqs:GetQueueAttributes",
+                    "sqs:ChangeMessageVisibility"
+                  ],
+                  "Resource": {
+                    "Fn::GetAtt": ["<sqs-consumer-name>", "Arn"]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "<lambda-name>": {
+      "Type": "AWS::Lambda::Function",
+      "Metadata": {
+        "aws:asset:path": "./src",
+        "aws:asset:property": "Code"
+      },
+      "Properties": {
+        "Handler": "index.handler",
+        "Role": {
+          "Fn::GetAtt": ["LambdaExecutionRole", "Arn"]
+        },
+        "Runtime": "nodejs12.x",
+        "Timeout": 60,
+        "MemorySize": 512
+      }
+    },
+    "LambdaFunctionEventSourceMapping": {
+      "Type": "AWS::Lambda::EventSourceMapping",
+      "Properties": {
+        "BatchSize": 10,
+        "Enabled": true,
+        "EventSourceArn": {
+          "Fn::GetAtt": ["<sqs-consumer-name>", "Arn"]
+        },
+        "FunctionName": {
+          "Fn::GetAtt": ["<lambda-name>", "Arn"]
+        }
+      }
+    }
+  }
+}
