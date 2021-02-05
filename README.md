@@ -5,7 +5,12 @@
   </a>
 </p>
 
-An easy way to add CloudFormation SNS=>SQS trigger lambda templates to your Amplify Project
+An easy way to add CloudFormation SNS=>SQS trigger lambda templates to your Amplify Project.
+
+## Status
+
+WIP: Please see the latest branch [ejs-templating](https://github.com/hogarthww-labs/amplify-category-sns-sqs-lambda/tree/ejs-templating)
+
 
 ## Installation
 
