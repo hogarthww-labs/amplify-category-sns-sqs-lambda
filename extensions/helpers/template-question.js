@@ -172,12 +172,12 @@ async function getProducerPolicyDetails(context){
     return policyDetails;
 }
 
-async function getLambdaName(context){
+async function getLambdaDetails(context){
     const { amplify } = context;
     const inputs = questions.template.inputs;
     const index  = 3
     const input = inputs[index]
-    const nameLambda = [
+    const lambdaQuestions = [
         {
           type: inputs.type,
           name: inputs.key,
@@ -186,9 +186,7 @@ async function getLambdaName(context){
           default: amplify.getProjectDetails().projectConfig.projectName,
     }];
 
-    let resource = await inquirer.prompt(nameLambda);
-
-    return resource.name;
+    return await inquirer.prompt(lambdaQuestions);
 }
 
 async function generateQuestions(context, rootTemplate){
@@ -258,5 +256,5 @@ module.exports = {
     getSNSConsumerDetails,
     getConsumerPolicyDetails,
     getProducerPolicyDetails,
-    getLambdaName
+    getLambdaDetails
 }

@@ -1,7 +1,14 @@
 const fs = require('fs');
 const path = require('path');
 const { copyFilesToS3 } = require('./helpers/template-staging');
-const { getProjectName, generateQuestions, getLambdaName, getSNSDetails, getSQSDetails } = require('./helpers/template-question');
+const { 
+    generateQuestions, 
+    subscribeToExistingSnsTopic,
+    createNewSnsTopic,
+    getSNSConsumerDetails, 
+    getSNSProducerDetails,
+    getLambdaDetails 
+} = require('./helpers/template-question');
 const { yamlParse, yamlDump } = require('yaml-cfn');
 const { prompts } = require('inquirer');
 
@@ -17,13 +24,19 @@ async function createTemplate(context){
         providerPlugin: 'awscloudformation',
     };
 
-    let lambdaName = await getLambdaName(context);
-    let snsDetails = await getSNSDetails(context);    
-    let sqsDetails = await getSQSDetails(context);    
-    let props = {}
-    props.lambdaName = lambdaName;
-    props.snsDetails = snsDetails;
-    props.sqsDetails = sqsDetails;
+    let snsSubscription = await subscribeToExistingSnsTopic(context)
+    let snsTopic = await createNewSnsTopic(context)
+    let snsConsumer = await getSNSConsumerDetails(context)
+    let snsProducer = await getSNSProducerDetails(context)    
+    let lambdaDetails = await getLambdaDetails(context);
+
+    let props = {
+        ...snsSubscription,
+        ...snsTopic,
+        ...snsConsumer,
+        ...snsProducer,
+        ...lambdaDetails
+    }
     props.options = options;
     props.root = path.join(__dirname, 'templates/sns-sqs-lambda-template.json')
     prepareCloudFormation(context,props);
@@ -44,14 +57,7 @@ async function prepareCloudFormation(context, props){
 }
 
 function renderTemplate(rootTemplate, props) {
-    const params = {
-        ...props.snsDetails,
-        ...props.sqsDetails,
-        lambdaName: props.lambdaName
-    }
-
-    const result = ejs.render(template, params);    
-    return result    
+    return ejs.render(rootTemplate, props);
 }
 
 
