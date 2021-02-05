@@ -66,7 +66,7 @@ async function createNewSnsTopic(context){
             addNewSnsTopic: createSNSTopic
         }
     }
-    let index = questionNames.indexOf(topicName)
+    let index = questionNames.indexOf('topicName')
     let input = inputs[index]
     questions = [
         {
@@ -88,12 +88,15 @@ async function createNewSnsTopic(context){
 async function getSNSProducerDetails(context){
     const { amplify } = context;
     const inputs = questions.template.inputs;
+    let index = questionNames.indexOf('addSnSProducer')
+    let input = inputs[index]
+
     const questions = [
         {
-            type: inputs[1].type,
+            type: inputs.type,
             name: 'addSnSProducer',
-            message: inputs[1].question,
-            validate: amplify.inputValidation(inputs[1]),
+            message: inputs.question,
+            validate: amplify.inputValidation(inputs),
             default: 'producer',
         }
     ];
@@ -105,12 +108,14 @@ async function getSNSProducerDetails(context){
         return answers
     }
 
+    let index = questionNames.indexOf('producerName')
+    let input = inputs[index]
     const questions = [
         {
-            type: inputs[1].type,
+            type: input.type,
             name: 'producerName',
-            message: inputs[1].question,
-            validate: amplify.inputValidation(inputs[1]),
+            message: input.question,
+            validate: amplify.inputValidation(input),
             default: 'producer',
         }
     ];
@@ -126,13 +131,15 @@ async function getSNSProducerDetails(context){
 async function getSNSConsumerDetails(context){
     const { amplify } = context;
     const inputs = questions.template.inputs;
+    let index = questionNames.indexOf('addSnsConsumer')
+    let input = inputs[index]
 
     let questions = [
         {
-            type: inputs[1].type,
+            type: input.type,
             name: 'addSnsConsumer',
-            message: inputs[1].question,
-            validate: amplify.inputValidation(inputs[1]),
+            message: input.question,
+            validate: amplify.inputValidation(input),
             default: 'consumer',
         }
     ];
@@ -143,13 +150,14 @@ async function getSNSConsumerDetails(context){
     if (!addSnsConsumer) {
         return answers
     }
-
+    let index = questionNames.indexOf('consumerName')
+    let input = inputs[index]
     questions = [
         {
-            type: inputs[2].type,
+            type: input.type,
             name: 'consumerName',
-            message: inputs[2].question,
-            validate: amplify.inputValidation(inputs[2]),
+            message: input.question,
+            validate: amplify.inputValidation(input),
             default: 'consumer',
         }
     ];
@@ -164,12 +172,14 @@ async function getSNSConsumerDetails(context){
 async function getConsumerPolicyDetails(context){
     const { amplify } = context;
     const inputs = questions.template.inputs;
+    let index = questionNames.indexOf('addConsumerUserPolicy')
+    let input = inputs[index]
     let questions = [
         {
-            type: inputs[1].type,
+            type: inputs.type,
             name: 'addConsumerUserPolicy',
-            message: inputs[1].question,
-            validate: amplify.inputValidation(inputs[1]),
+            message: inputs.question,
+            validate: amplify.inputValidation(input),
             default: false,
         }
     ]
@@ -179,12 +189,14 @@ async function getConsumerPolicyDetails(context){
     if (!addConsumerUserPolicy) {
         return answers
     }    
+    let index = questionNames.indexOf('addConsumerGroupPolicy')
+    let input = inputs[index]    
     questions = [
         {
-            type: inputs[2].type,
+            type: input.type,
             name: 'addConsumerGroupPolicy',
-            message: inputs[2].question,
-            validate: amplify.inputValidation(inputs[2]),
+            message: input.question,
+            validate: amplify.inputValidation(input),
             default: false,
         }
     ]
@@ -198,12 +210,13 @@ async function getConsumerPolicyDetails(context){
             addConsumerGroupPolicy
         }
     }    
-
+    let index = questionNames.indexOf('addConsumerUser')
+    let input = inputs[index]    
     let questions = [{
-            type: inputs[2].type,
+            type: input.type,
             name: 'addConsumerUser',
-            message: inputs[2].question,
-            validate: amplify.inputValidation(inputs[2]),
+            message: input.question,
+            validate: amplify.inputValidation(input),
             default: false,
         }
     ];
@@ -219,12 +232,14 @@ async function getConsumerPolicyDetails(context){
 async function getProducerPolicyDetails(context){
     const { amplify } = context;
     const inputs = questions.template.inputs;
+    let index = questionNames.indexOf('addPublishUserPolicy')
+    let input = inputs[index]    
     let questions = [
         {
-            type: inputs[1].type,
+            type: input.type,
             name: 'addPublishUserPolicy',
-            message: inputs[1].question,
-            validate: amplify.inputValidation(inputs[1]),
+            message: input.question,
+            validate: amplify.inputValidation(input),
             default: false,
         }
     ]
@@ -235,13 +250,14 @@ async function getProducerPolicyDetails(context){
     if (!addPublishUserPolicy) {
         return answers
     }
-
+    let index = questionNames.indexOf('addPublishGroupPolicy')
+    let input = inputs[index]    
     questions = [
         {
-            type: inputs[2].type,
+            type: input.type,
             name: 'addPublishGroupPolicy',
-            message: inputs[2].question,
-            validate: amplify.inputValidation(inputs[2]),
+            message: input.question,
+            validate: amplify.inputValidation(input),
             default: false,
         }
     ]
@@ -255,13 +271,14 @@ async function getProducerPolicyDetails(context){
             addPublishGroupPolicy
         }
     }
-
+    let index = questionNames.indexOf('addPublishUser')
+    let input = inputs[index]    
     questions = [ 
         {
-            type: inputs[2].type,
+            type: input.type,
             name: 'addPublishUser',
-            message: inputs[2].question,
-            validate: amplify.inputValidation(inputs[2]),
+            message: input.question,
+            validate: amplify.inputValidation(input),
             default: false,
         }
     ];
@@ -277,18 +294,18 @@ async function getProducerPolicyDetails(context){
 async function getLambdaDetails(context){
     const { amplify } = context;
     const inputs = questions.template.inputs;
-    const index  = 3
-    const input = inputs[index]
-    const lambdaQuestions = [
+    let index = questionNames.indexOf('lambdaName')
+    let input = inputs[index]    
+    const questions = [
         {
           type: inputs.type,
-          name: inputs.key,
+          name: 'lambdaName',
           message: inputs.question,
           validate: amplify.inputValidation(input),
           default: 'consumer',
     }];
 
-    return await inquirer.prompt(lambdaQuestions);
+    return await inquirer.prompt(questions);
 }
 
 async function generateQuestions(context, rootTemplate){
