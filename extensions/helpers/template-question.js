@@ -2,39 +2,45 @@ const questions = require('./questions.json');
 const inquirer = require('inquirer');
 const fs = require('fs');
 
+const questionNames = questions.map(q => q.name)
+
 async function subscribeToExistingSnsTopic(context){
     const { amplify } = context;
     const inputs = questions.template.inputs;
-    const askSubscribeToExistingSnsTopic = [
+    let index = questionNames.indexOf('snsSubscription')
+    let input = inputs[index]
+    let questions = [
         {
-          type: inputs[0].type,
-          name: inputs[0].name,
-          message: inputs[0].question,
-          validate: amplify.inputValidation(inputs[0]),
-          default: inputs[0].default,
+          type: input.type,
+          name: 'snsSubscription',
+          message: input.question,
+          validate: amplify.inputValidation(input),
+          default: input.default,
     }];
+
     let answers
     answers = await inquirer.prompt(askSubscribeToExistingSnsTopic);
-    let addSnsSubscription = answers[inputs[0].name]
-    if (!addSnsSubscription) {
+    let { snsSubscription } = answers
+    if (!snsSubscription) {
         return {
-            addSnsSubscription
+            addSnsSubscription: snsSubscription
         }
     }
-
-    const askTopicArn = [
+    let index = questionNames.indexOf('topicArnName')
+    let input = inputs[index]
+    questions = [
         {
-          type: inputs[1].type,
-          name: inputs[1].name,
-          message: inputs[1].question,
-          validate: amplify.inputValidation(inputs[1]),
-          default: inputs[1].default,
+          type: input.type,
+          name: 'topicArnName',
+          message: input.question,
+          validate: amplify.inputValidation(input),
+          default: input.default,
     }];
 
-    answers = await inquirer.prompt(askTopicArn); 
-    let topicArn = answers[inputs[0].name]   
+    answers = await inquirer.prompt(questions); 
+    let { topicArn } = answers
     return {
-        addSnsSubscription,
+        addSnsSubscription: snsSubscription,
         topicArn
     }
 }
@@ -42,24 +48,27 @@ async function subscribeToExistingSnsTopic(context){
 async function createNewSnsTopic(context){
     const { amplify } = context;
     const inputs = questions.template.inputs;
-    const askCreateNewSnsTopic = [
+    let index = questionNames.indexOf('createSNSTopic')
+    let input = inputs[index]
+    let questions = [
         {
-          type: inputs[2].type,
-          name: inputs[2].name,
-          message: inputs[2].question,
-          validate: amplify.inputValidation(inputs[2]),
-          default: inputs[2].default,
+          type: input.type,
+          name: 'createSNSTopic',
+          message: input.question,
+          validate: amplify.inputValidation(input),
+          default: input.default,
     }];
     let answers
-    answers = await inquirer.prompt(askCreateNewSnsTopic);
-    let addNewSnsTopic = answers[inputs[2].name]
-    if (!addNewSnsTopic) {
+    answers = await inquirer.prompt(questions);
+    let { createSNSTopic } = answers[inputs[2].name]
+    if (!createSNSTopic) {
         return {
-            addNewSnsTopic
+            addNewSnsTopic: createSNSTopic
         }
     }
-    input = inputs[3]
-    const askTopicName = [
+    let index = questionNames.indexOf(topicName)
+    let input = inputs[index]
+    questions = [
         {
           type: input.type,
           name: input.name,
@@ -68,10 +77,10 @@ async function createNewSnsTopic(context){
           default: input.default,
     }];
 
-    answers = await inquirer.prompt(askTopicName); 
-    let topicName = answers[input.name]   
+    answers = await inquirer.prompt(questions); 
+    let { topicName } = answers
     return {
-        addNewSnsTopic,
+        addNewSnsTopic: createSNSTopic,
         topicName
     }
 }
@@ -79,7 +88,6 @@ async function createNewSnsTopic(context){
 async function getSNSProducerDetails(context){
     const { amplify } = context;
     const inputs = questions.template.inputs;
-
     const questions = [
         {
             type: inputs[1].type,

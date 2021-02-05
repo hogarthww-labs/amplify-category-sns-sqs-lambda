@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { copyFilesToS3 } = require('./helpers/template-staging');
+// const { copyFilesToS3 } = require('./helpers/template-staging');
 const { 
     generateQuestions, 
     subscribeToExistingSnsTopic,
@@ -10,7 +10,7 @@ const {
     getLambdaDetails 
 } = require('./helpers/template-question');
 const { yamlParse, yamlDump } = require('yaml-cfn');
-const { prompts } = require('inquirer');
+// const { prompts } = require('inquirer');
 
 module.exports = (context) => {
     context.createTemplate = async () => {

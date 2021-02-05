@@ -107,7 +107,7 @@
         "required": true
       },
       {
-        "key": "lambda",
+        "key": "lambdaName",
         "question": "Provide a friendly name for your Lambda resource:",
         "validation": {
           "operator": "regex",
