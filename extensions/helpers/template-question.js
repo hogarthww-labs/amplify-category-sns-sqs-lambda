@@ -2,34 +2,101 @@ const questions = require('./questions.json');
 const inquirer = require('inquirer');
 const fs = require('fs');
 
-async function getSNSDetails(context){
+async function subscribeToExistingSnsTopic(context){
     const { amplify } = context;
     const inputs = questions.template.inputs;
-    const nameProject = [
+    const askSubscribeToExistingSnsTopic = [
         {
           type: inputs[0].type,
-          name: 'topicName',
+          name: inputs[0].name,
           message: inputs[0].question,
           validate: amplify.inputValidation(inputs[0]),
-          default: 'MySNStopic',
+          default: inputs[0].default,
+    }];
+    let answers
+    answers = await inquirer.prompt(askSubscribeToExistingSnsTopic);
+    let addSnsSubscription = answers[inputs[0].name]
+    if (!addSnsSubscription) {
+        return {
+            addSnsSubscription
+        }
+    }
+
+    const askTopicArn = [
+        {
+          type: inputs[1].type,
+          name: inputs[1].name,
+          message: inputs[1].question,
+          validate: amplify.inputValidation(inputs[1]),
+          default: inputs[1].default,
     }];
 
-    let resource = await inquirer.prompt(nameProject);
-
-    return resource.name;
+    answers = await inquirer.prompt(askTopicArn); 
+    let topicArn = answers[inputs[0].name]   
+    return {
+        addSnsSubscription,
+        topicArn
+    }
 }
 
-async function getSQSDetails(context){
+async function createNewSnsTopic(context){
     const { amplify } = context;
     const inputs = questions.template.inputs;
-    const sqsQuestions = [
+    const askCreateNewSnsTopic = [
+        {
+          type: inputs[2].type,
+          name: inputs[2].name,
+          message: inputs[2].question,
+          validate: amplify.inputValidation(inputs[2]),
+          default: inputs[2].default,
+    }];
+    let answers
+    answers = await inquirer.prompt(askCreateNewSnsTopic);
+    let addNewSnsTopic = answers[inputs[2].name]
+    if (!addNewSnsTopic) {
+        return {
+            addNewSnsTopic
+        }
+    }
+    input = inputs[3]
+    const askTopicName = [
+        {
+          type: input.type,
+          name: input.name,
+          message: input.question,
+          validate: amplify.inputValidation(input),
+          default: input.default,
+    }];
+
+    answers = await inquirer.prompt(askTopicName); 
+    let topicName = answers[input.name]   
+    return {
+        addNewSnsTopic,
+        topicName
+    }
+}
+
+async function getSNSProducerDetails(context){
+    const { amplify } = context;
+    const inputs = questions.template.inputs;
+    const producerQuestions = [
         {
             type: inputs[1].type,
             name: 'producerName',
             message: inputs[1].question,
             validate: amplify.inputValidation(inputs[1]),
             default: 'producer',
-        },
+        }
+    ];
+
+    let producerDetails = await inquirer.prompt(sqsQuestions);
+    return producerDetails;
+}
+
+async function getSNSConsumerDetails(context){
+    const { amplify } = context;
+    const inputs = questions.template.inputs;
+    const consumerQuestions = [
         {
             type: inputs[2].type,
             name: 'consumerName',
@@ -39,8 +106,70 @@ async function getSQSDetails(context){
         }
     ];
 
-    let sqsDetails = await inquirer.prompt(sqsQuestions);
-    return sqsDetails;
+    let consumerDetails = await inquirer.prompt(consumerQuestions);
+    return consumerDetails;
+}
+
+async function getConsumerPolicyDetails(context){
+    const { amplify } = context;
+    const inputs = questions.template.inputs;
+    const policyQuestions = [
+        {
+            type: inputs[1].type,
+            name: 'addConsumerUserPolicy',
+            message: inputs[1].question,
+            validate: amplify.inputValidation(inputs[1]),
+            default: false,
+        },
+        {
+            type: inputs[2].type,
+            name: 'addConsumerGroupPolicy',
+            message: inputs[2].question,
+            validate: amplify.inputValidation(inputs[2]),
+            default: false,
+        },
+        {
+            type: inputs[2].type,
+            name: 'addConsumerUser',
+            message: inputs[2].question,
+            validate: amplify.inputValidation(inputs[2]),
+            default: false,
+        }
+    ];
+
+    let policyDetails = await inquirer.prompt(policyQuestions);
+    return policyDetails;
+}
+
+async function getProducerPolicyDetails(context){
+    const { amplify } = context;
+    const inputs = questions.template.inputs;
+    const policyQuestions = [
+        {
+            type: inputs[1].type,
+            name: 'addPublishUserPolicy',
+            message: inputs[1].question,
+            validate: amplify.inputValidation(inputs[1]),
+            default: false,
+        },
+        {
+            type: inputs[2].type,
+            name: 'addPublishGroupPolicy',
+            message: inputs[2].question,
+            validate: amplify.inputValidation(inputs[2]),
+            default: false,
+        },
+        {
+            type: inputs[2].type,
+            name: 'addPublishUser',
+            message: inputs[2].question,
+            validate: amplify.inputValidation(inputs[2]),
+            default: false,
+        }
+    ];
+
+    let policyDetails = await inquirer.prompt(policyQuestions);
+    return policyDetails;
 }
 
 async function getLambdaName(context){
@@ -122,9 +251,12 @@ async function generateQuestions(context, rootTemplate){
 }
 
 module.exports = {
-    getProjectName,
     generateQuestions,
-    getSQSDetails,
-    getSNSDetails,
+    subscribeToExistingSnsTopic,
+    createNewSnsTopic,
+    getSNSProducerDetails,
+    getSNSConsumerDetails,
+    getConsumerPolicyDetails,
+    getProducerPolicyDetails,
     getLambdaName
 }

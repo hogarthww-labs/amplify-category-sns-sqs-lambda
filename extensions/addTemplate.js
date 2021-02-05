@@ -3,6 +3,7 @@ const path = require('path');
 const { copyFilesToS3 } = require('./helpers/template-staging');
 const { getProjectName, generateQuestions, getLambdaName, getSNSDetails, getSQSDetails } = require('./helpers/template-question');
 const { yamlParse, yamlDump } = require('yaml-cfn');
+const { prompts } = require('inquirer');
 
 module.exports = (context) => {
     context.createTemplate = async () => {
@@ -42,27 +43,30 @@ async function prepareCloudFormation(context, props){
     await stageRoot(context, props);
 }
 
-function replaceTemplateName(rootTemplate, props) {
-    rootTemplate = rootTemplate.replace('<sns-topic-name>', props.snsDetails.topicName)
-    rootTemplate = rootTemplate.replace('<sqs-consumer>', props.sqsDetails.consumerName)
-    rootTemplate = rootTemplate.replace('<sqs-producer>', props.sqsDetails.producerName)
-    rootTemplate = rootTemplate.replace('<lambda-name>', props.lambdaName)
-    return rootTemplate    
+function renderTemplate(rootTemplate, props) {
+    const params = {
+        ...props.snsDetails,
+        ...props.sqsDetails,
+        lambdaName: props.lambdaName
+    }
+
+    const result = ejs.render(template, params);    
+    return result    
 }
 
 
 async function handleYAML(context, props){
     let rootTemplate = yamlParse(fs.readFileSync(props.root,'utf8'));
-    rootTemplate = await prepareTemplate(context, props, rootTemplate);
-    rootTemplate = replaceTemplateName(rootTemplate, props)
+    rootTemplate = renderTemplate(rootTemplate, props)
+    rootTemplate = await prepareTemplate(context, props, rootTemplate);    
     rootTemplate = await generateQuestions(context, rootTemplate);
     fs.writeFileSync(props.root, yamlDump(rootTemplate, null, 4));
 }
 
 async function handleJSON(context, props){
     let rootTemplate = JSON.parse(fs.readFileSync(props.root));
-    rootTemplate = await prepareTemplate(context, props, rootTemplate);
-    rootTemplate = replaceTemplateName(rootTemplate, props)
+    rootTemplate = renderTemplate(rootTemplate, props)
+    rootTemplate = await prepareTemplate(context, props, rootTemplate);    
     rootTemplate = await generateQuestions(context, rootTemplate);
     fs.writeFileSync(props.root, JSON.stringify(rootTemplate, null, 4));
 }

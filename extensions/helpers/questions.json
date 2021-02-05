@@ -2,6 +2,25 @@
   "template": {
     "inputs": [
       {
+        "key": "snsSubscription",
+        "question": "Do you wish to subscribe to an existing SNS topic:",
+        "type": "confirm",
+        "default": true,
+        "required": true
+      },
+      {
+        "key": "topicArnName",
+        "question": "Provide the ARN for your existing SNS topic resource:",
+        "required": true
+      },
+      {
+        "key": "createSNSTopic",
+        "question": "Do you wish to create a new SNS topic:",
+        "type": "confirm",
+        "default": false,
+        "required": true
+      },
+      {
         "key": "topicName",
         "question": "Provide a friendly name for your SNS topic resource:",
         "validation": {
@@ -12,8 +31,22 @@
         "required": true
       },
       {
+        "key": "addSnsProducer",
+        "type": "confirm",
+        "question": "Do you wish to add an SNS producer queue:",
+        "default": true,
+        "required": true
+      },
+      {
+        "key": "addSqsConsumer",
+        "type": "confirm",
+        "question": "Do you wish to add an SNS consumer queue:",
+        "default": true,
+        "required": true
+      },
+      {
         "key": "producerName",
-        "question": "Provide a friendly name for your SQS producer resource:",
+        "question": "Provide a friendly name for your SNS producer queue:",
         "validation": {
           "operator": "regex",
           "value": "^[a-zA-Z0-9]+$",
@@ -23,7 +56,7 @@
       },
       {
         "key": "consumerName",
-        "question": "Provide a friendly name for your SQS consumer resource:",
+        "question": "Provide a friendly name for your SNS consumer queue:",
         "validation": {
           "operator": "regex",
           "value": "^[a-zA-Z0-9]+$",
@@ -32,8 +65,50 @@
         "required": true
       },
       {
+        "key": "addPublishUserPolicy",
+        "question": "Provide a producer user policy for your SNS producer queue:",
+        "type": "confirm",
+        "default": false,
+        "required": true
+      },
+      {
+        "key": "addPublishGroupPolicy",
+        "question": "Provide a producer user group policy for your producer user:",
+        "type": "confirm",
+        "default": false,
+        "required": true
+      },
+      {
+        "key": "addPublishUser",
+        "question": "Provide a producer user for your producer policy:",
+        "type": "confirm",
+        "default": false,
+        "required": true
+      },
+      {
+        "key": "addConsumerUserPolicy",
+        "question": "Provide a consumer user policy for your SNS consumer queue:",
+        "type": "confirm",
+        "default": false,
+        "required": true
+      },
+      {
+        "key": "addConsumerGroupPolicy",
+        "question": "Provide a consumer user group policy for your consumer user:",
+        "type": "confirm",
+        "default": false,
+        "required": true
+      },
+      {
+        "key": "addConsumerUser",
+        "question": "Provide a consumer user for your consumer policy:",
+        "type": "confirm",
+        "default": false,
+        "required": true
+      },
+      {
         "key": "lambda",
-        "question": "Provide a friendly name for your Lambda resource to be used as a label in the project:",
+        "question": "Provide a friendly name for your Lambda resource:",
         "validation": {
           "operator": "regex",
           "value": "^[a-zA-Z0-9]+$",

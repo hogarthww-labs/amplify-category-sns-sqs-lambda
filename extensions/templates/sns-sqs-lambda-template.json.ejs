@@ -1,38 +1,117 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
   "Resources": {
-    "<sns-topic-name>": {
+    <% if (snsConsumerSubscription) { %>   
+    {
+      "<%= snsConsumerName %>Queue": {
+        "Type" : "AWS::SQS::Queue",
+        "Properties": {
+          "QueueName": "<%= snsConsumerName %>Queue"
+        }  
+      }
+    },
+    {
+      "Type" : "AWS::SNS::Subscription",
+      "Properties" : {
+          "Protocol" : "sqs",
+          "Endpoint": {
+            "Fn::GetAtt": ["<%= snsConsumerName %>", "Arn"]
+          },
+          "TopicArn" : "<%= topicArn %>"
+        }
+    },
+    "<%= snsConsumerName %>Policy": {
+      "Type": "AWS::SQS::QueuePolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "sns.amazonaws.com"
+              },
+              "Action": ["sqs:SendMessage"],
+              "Resource": "*",
+              "Condition": {
+                "ArnEquals": {
+                  "aws:SourceArn": "<%= snsTopicArn %>"
+                }
+              }
+            }
+          ]
+        },       
+    <% }; %>   
+    <% if (snsProducerSubscription) { %>     
+      {
+        "<%= snsConsumerName %>Queue": {
+          "Type" : "AWS::SQS::Queue",
+          "Properties": {
+            "QueueName": "<%= snsProducerName %>Queue"
+          }  
+        }
+      },  
+      {
+        "Type" : "AWS::SNS::Subscription",
+        "Properties" : {
+            "Protocol" : "sqs",
+            "Endpoint": {
+              "Fn::GetAtt": ["<%= snsProducerName %>", "Arn"]
+            },
+            "TopicArn" : "<%= topicArn %>"
+          }
+      },
+      "<%= snsProducerName %>Policy": {
+        "Type": "AWS::SQS::QueuePolicy",
+        "Properties": {
+          "PolicyDocument": {
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Principal": {
+                  "Service": "sns.amazonaws.com"
+                },
+                "Action": ["sqs:SendMessage"],
+                "Resource": "*",
+                "Condition": {
+                  "ArnEquals": {
+                    "aws:SourceArn": "<%= snsTopicArn %>"
+                  }
+                }
+              }
+            ]
+          },       
+      <% }; %>   
+      "<%= snsTopicName %>": {
       "Type": "AWS::SNS::Topic",
       "Properties": {
         "Subscription": [
           {
             "Endpoint": {
-              "Fn::GetAtt": ["<sqs-consumer-name>", "Arn"]
+              "Fn::GetAtt": ["<%= snsConsumerName %>", "Arn"]
             },
             "Protocol": "sqs"
           },
           {
             "Endpoint": {
-              "Fn::GetAtt": ["<sqs-producer-name>", "Arn"]
+              "Fn::GetAtt": ["<%= snsProducerName %>", "Arn"]
             },
             "Protocol": "sqs"
           }
         ]
       }
     },
-    "<sqs-consumer-name>": {
+    "<%= snsConsumerName %>": {
       "Type": "AWS::SQS::Queue"
     },
-    "<sqs-producer-name>": {
+    "<%= snsProducerName %>": {
       "Type": "AWS::SQS::Queue"
     },
-    "MyPublishUser": {
+    <% if (addPublishUserPolicy) { %>
+    <% if (addPublishUser) { %>
+      "MyPublishUser": {
       "Type": "AWS::IAM::User",
       "Properties": {
         "LoginProfile": {
-          "Password": {
-            "Ref": "MyPublishUserPassword"
-          }
         }
       }
     },
@@ -44,19 +123,21 @@
         }
       }
     },
+    <% } %>
+    <% if (addPublishGroupPolicy) { %>
     "MyPublishTopicGroup": {
       "Type": "AWS::IAM::Group",
       "Properties": {
         "Policies": [
           {
-            "PolicyName": "<sns-topic-name>GroupPolicy",
+            "PolicyName": "<%= snsTopicName %>GroupPolicy",
             "PolicyDocument": {
               "Statement": [
                 {
                   "Effect": "Allow",
                   "Action": ["sns:Publish"],
                   "Resource": {
-                    "Ref": "<sns-topic-name>"
+                    "Ref": "<%= snsTopicName %>"
                   }
                 }
               ]
@@ -78,13 +159,14 @@
         ]
       }
     },
+    <% } %>
+    <% } %>
+    <% if (addConsumerUserPolicy) { %>
+    <% if (addConsumerUser) { %>  
     "MyQueueUser": {
       "Type": "AWS::IAM::User",
       "Properties": {
         "LoginProfile": {
-          "Password": {
-            "Ref": "MyQueueUserPassword"
-          }
         }
       }
     },
@@ -96,6 +178,8 @@
         }
       }
     },
+    <% } %>
+    <% if (addConsumerGroupPolicy) { %>
     "MyRDMessageQueueGroup": {
       "Type": "AWS::IAM::Group",
       "Properties": {
@@ -109,10 +193,10 @@
                   "Action": ["sqs:DeleteMessage", "sqs:ReceiveMessage"],
                   "Resource": [
                     {
-                      "Fn::GetAtt": ["<sqs-consumer-name>", "Arn"]
+                      "Fn::GetAtt": ["<%= snsConsumerName %>", "Arn"]
                     },
                     {
-                      "Fn::GetAtt": ["<sqs-producer-name>", "Arn"]
+                      "Fn::GetAtt": ["<%= snsProducerName %>", "Arn"]
                     }
                   ]
                 }
@@ -122,7 +206,7 @@
         ]
       }
     },
-    "AddUserTo<sqs-consumer-name>Group": {
+    "AddUserTo<%= snsConsumerName %>Group": {
       "Type": "AWS::IAM::UserToGroupAddition",
       "Properties": {
         "GroupName": {
@@ -130,12 +214,12 @@
         },
         "Users": [
           {
-            "Ref": "<sqs-consumer-name>User"
+            "Ref": "<%= snsConsumerName %>User"
           }
         ]
       }
     },
-    "<sqs-consumer-name>Policy": {
+    "<%= snsConsumerName %>Policy": {
       "Type": "AWS::SQS::QueuePolicy",
       "Properties": {
         "PolicyDocument": {
@@ -150,7 +234,7 @@
               "Condition": {
                 "ArnEquals": {
                   "aws:SourceArn": {
-                    "Ref": "<sns-topic-name>"
+                    "Ref": "<%= snsTopicName %>"
                   }
                 }
               }
@@ -159,14 +243,16 @@
         },
         "Queues": [
           {
-            "Ref": "<sqs-consumer-name>"
+            "Ref": "<%= snsConsumerName %>"
           },
           {
-            "Ref": "<sqs-producer-name>"
+            "Ref": "<%= snsProducerName %>"
           }
         ]
       }
     },
+    <% } %>
+    <% } %>        
     "LambdaExecutionRole": {
       "Type": "AWS::IAM::Role",
       "Properties": {
@@ -210,7 +296,7 @@
                     "sqs:ChangeMessageVisibility"
                   ],
                   "Resource": {
-                    "Fn::GetAtt": ["<sqs-consumer-name>", "Arn"]
+                    "Fn::GetAtt": ["<%= snsConsumerName %>", "Arn"]
                   }
                 }
               ]
@@ -219,7 +305,7 @@
         ]
       }
     },
-    "<lambda-name>": {
+    "<= lambdaName %>": {
       "Type": "AWS::Lambda::Function",
       "Metadata": {
         "aws:asset:path": "./src",
@@ -241,10 +327,10 @@
         "BatchSize": 10,
         "Enabled": true,
         "EventSourceArn": {
-          "Fn::GetAtt": ["<sqs-consumer-name>", "Arn"]
+          "Fn::GetAtt": ["<%= snsConsumerName %>", "Arn"]
         },
         "FunctionName": {
-          "Fn::GetAtt": ["<lambda-name>", "Arn"]
+          "Fn::GetAtt": ["<%= lambdaName %>", "Arn"]
         }
       }
     }
