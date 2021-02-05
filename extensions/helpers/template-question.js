@@ -79,7 +79,25 @@ async function createNewSnsTopic(context){
 async function getSNSProducerDetails(context){
     const { amplify } = context;
     const inputs = questions.template.inputs;
-    const producerQuestions = [
+
+    const questions = [
+        {
+            type: inputs[1].type,
+            name: 'addSnSProducer',
+            message: inputs[1].question,
+            validate: amplify.inputValidation(inputs[1]),
+            default: 'producer',
+        }
+    ];
+
+    let answers = await inquirer.prompt(questions);
+    const { addSnSProducer } = answers
+
+    if (!addSnSProducer) {
+        return answers
+    }
+
+    const questions = [
         {
             type: inputs[1].type,
             name: 'producerName',
@@ -89,14 +107,36 @@ async function getSNSProducerDetails(context){
         }
     ];
 
-    let producerDetails = await inquirer.prompt(sqsQuestions);
-    return producerDetails;
+    let producerDetails = await inquirer.prompt(questions);
+    return {
+        ...producerDetails,
+        addSnSProducer
+    }
+
 }
 
 async function getSNSConsumerDetails(context){
     const { amplify } = context;
     const inputs = questions.template.inputs;
-    const consumerQuestions = [
+
+    let questions = [
+        {
+            type: inputs[1].type,
+            name: 'addSnsConsumer',
+            message: inputs[1].question,
+            validate: amplify.inputValidation(inputs[1]),
+            default: 'consumer',
+        }
+    ];
+
+    let answers = await inquirer.prompt(questions);
+    const { addSnsConsumer } = answers
+
+    if (!addSnsConsumer) {
+        return answers
+    }
+
+    questions = [
         {
             type: inputs[2].type,
             name: 'consumerName',
@@ -106,29 +146,52 @@ async function getSNSConsumerDetails(context){
         }
     ];
 
-    let consumerDetails = await inquirer.prompt(consumerQuestions);
-    return consumerDetails;
+    let consumerDetails = await inquirer.prompt(questions);
+    return {
+        ...consumerDetails,
+        addSnsConsumer
+    }
 }
 
 async function getConsumerPolicyDetails(context){
     const { amplify } = context;
     const inputs = questions.template.inputs;
-    const policyQuestions = [
+    let questions = [
         {
             type: inputs[1].type,
             name: 'addConsumerUserPolicy',
             message: inputs[1].question,
             validate: amplify.inputValidation(inputs[1]),
             default: false,
-        },
+        }
+    ]
+
+    let answers = await inquirer.prompt(questions);
+    let { addConsumerUserPolicy } = answers
+    if (!addConsumerUserPolicy) {
+        return answers
+    }    
+    questions = [
         {
             type: inputs[2].type,
             name: 'addConsumerGroupPolicy',
             message: inputs[2].question,
             validate: amplify.inputValidation(inputs[2]),
             default: false,
-        },
-        {
+        }
+    ]
+
+    let answers = await inquirer.prompt(questions);
+    let { addConsumerGroupPolicy } = answers
+
+    if (!addConsumerGroupPolicy) {
+        return {
+            addConsumerUserPolicy,
+            addConsumerGroupPolicy
+        }
+    }    
+
+    let questions = [{
             type: inputs[2].type,
             name: 'addConsumerUser',
             message: inputs[2].question,
@@ -137,28 +200,55 @@ async function getConsumerPolicyDetails(context){
         }
     ];
 
-    let policyDetails = await inquirer.prompt(policyQuestions);
-    return policyDetails;
+    let answers = await inquirer.prompt(questions);
+    return {
+        ...answers,
+        addConsumerUserPolicy,
+        addConsumerGroupPolicy,
+    }
 }
 
 async function getProducerPolicyDetails(context){
     const { amplify } = context;
     const inputs = questions.template.inputs;
-    const policyQuestions = [
+    let questions = [
         {
             type: inputs[1].type,
             name: 'addPublishUserPolicy',
             message: inputs[1].question,
             validate: amplify.inputValidation(inputs[1]),
             default: false,
-        },
+        }
+    ]
+
+    let answers = await inquirer.prompt(questions);
+    let { addPublishUserPolicy } = answers
+
+    if (!addPublishUserPolicy) {
+        return answers
+    }
+
+    questions = [
         {
             type: inputs[2].type,
             name: 'addPublishGroupPolicy',
             message: inputs[2].question,
             validate: amplify.inputValidation(inputs[2]),
             default: false,
-        },
+        }
+    ]
+
+    let answers = await inquirer.prompt(questions);
+    let { addPublishGroupPolicy } = answers
+
+    if (!addPublishGroupPolicy) {
+        return {
+            addPublishUserPolicy,
+            addPublishGroupPolicy
+        }
+    }
+
+    questions = [ 
         {
             type: inputs[2].type,
             name: 'addPublishUser',
@@ -168,8 +258,12 @@ async function getProducerPolicyDetails(context){
         }
     ];
 
-    let policyDetails = await inquirer.prompt(policyQuestions);
-    return policyDetails;
+    let answers = await inquirer.prompt(questions);
+    return {
+        ...answers,
+        addPublishUserPolicy,
+        addPublishGroupPolicy
+    };
 }
 
 async function getLambdaDetails(context){
@@ -183,7 +277,7 @@ async function getLambdaDetails(context){
           name: inputs.key,
           message: inputs.question,
           validate: amplify.inputValidation(input),
-          default: amplify.getProjectDetails().projectConfig.projectName,
+          default: 'consumer',
     }];
 
     return await inquirer.prompt(lambdaQuestions);

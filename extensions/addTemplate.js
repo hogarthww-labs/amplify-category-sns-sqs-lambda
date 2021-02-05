@@ -28,6 +28,10 @@ async function createTemplate(context){
     let snsTopic = await createNewSnsTopic(context)
     let snsConsumer = await getSNSConsumerDetails(context)
     let snsProducer = await getSNSProducerDetails(context)    
+    const hasProducer = snsProducer.addSnsProducer
+    const hasConsumer = snsConsumer.addSnsConsumer
+    let consumerPolicy = hasProducer ? await getConsumerPolicyDetails(context) : {}
+    let producerPolicy = hasConsumer ? await getProducerPolicyDetails(context) : {}   
     let lambdaDetails = await getLambdaDetails(context);
 
     let props = {
@@ -35,6 +39,8 @@ async function createTemplate(context){
         ...snsTopic,
         ...snsConsumer,
         ...snsProducer,
+        ...consumerPolicy,
+        ...producerPolicy,
         ...lambdaDetails
     }
     props.options = options;
