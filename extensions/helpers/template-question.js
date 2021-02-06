@@ -294,6 +294,26 @@ async function getProducerPolicyDetails(context){
 async function getLambdaDetails(context){
     const { amplify } = context;
     const inputs = questions.template.inputs;
+    let index = questionNames.indexOf('addConsumerLambda')
+    let input = inputs[index]    
+    const questions = [
+        {
+          type: inputs.type,
+          name: 'addConsumerLambda',
+          message: inputs.question,
+          validate: amplify.inputValidation(input),
+          default: 'consumer',
+    }];
+    let answers = await inquirer.prompt(questions);
+    let { addConsumerLambda } = answers
+
+    if (!addConsumerLambda) {
+        return {
+            addConsumerLambda,
+        }
+    }
+
+
     let index = questionNames.indexOf('lambdaName')
     let input = inputs[index]    
     const questions = [
@@ -305,7 +325,11 @@ async function getLambdaDetails(context){
           default: 'consumer',
     }];
 
-    return await inquirer.prompt(questions);
+    answers = await inquirer.prompt(questions);
+    return {
+        ...answers,
+        addConsumerLambda
+    };
 }
 
 async function generateQuestions(context, rootTemplate){

@@ -107,6 +107,13 @@
         "required": true
       },
       {
+        "key": "addConsumerLambda",
+        "question": "Add a lambda to be triggered by SNS consumer queue event:",
+        "type": "confirm",
+        "default": false,
+        "required": true
+      },
+      {
         "key": "lambdaName",
         "question": "Provide a friendly name for your Lambda resource:",
         "validation": {
