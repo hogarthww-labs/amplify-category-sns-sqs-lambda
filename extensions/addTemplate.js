@@ -35,12 +35,19 @@ async function createTemplate(context){
     let lambdaDetails = await getLambdaDetails(context);
 
     let props = {
+        // addSnsSubscription, topicArn
         ...snsSubscription,
+        // addNewSnsTopic, snsTopicName
         ...snsTopic,
+        // addSnsConsumer, snsConsumerName
         ...snsConsumer,
+        // addSnsProducer, snsProducerName
         ...snsProducer,
+        // addConsumerUserPolicy, addConsumerGroupPolicy, addConsumerUser
         ...consumerPolicy,
+        // addPublishUserPolicy, addPublishGroupPolicy, addPublishUser
         ...producerPolicy,
+        // addConsumerLambda, lambdaName
         ...lambdaDetails
     }
     props.options = options;
@@ -65,7 +72,6 @@ async function prepareCloudFormation(context, props){
 function renderTemplate(rootTemplate, props) {
     return ejs.render(rootTemplate, props);
 }
-
 
 async function handleYAML(context, props){
     let rootTemplate = yamlParse(fs.readFileSync(props.root,'utf8'));
@@ -106,12 +112,12 @@ async function stageRoot(context, props){
         {
           dir: '/',
           template: `${props.root}`,
-          target: `${targetDir}/function/${props.projectName}/${props.projectName}-sns-sqs-template.${props.ending}`,
+          target: `${targetDir}/function/${props.name}/${props.projectName}-sns-sqs-template.${props.ending}`,
         },
       ];
       context.amplify.updateamplifyMetaAfterResourceAdd(
         "sqs",
-        props.projectName,
+        props.name,
         props.options,
       );
       await context.amplify.copyBatch(context, copyJobs, props);      

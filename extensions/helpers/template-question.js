@@ -26,12 +26,12 @@ async function subscribeToExistingSnsTopic(context){
             addSnsSubscription: snsSubscription
         }
     }
-    let index = questionNames.indexOf('topicArnName')
+    let index = questionNames.indexOf('snsTopicArn')
     let input = inputs[index]
     questions = [
         {
           type: input.type,
-          name: 'topicArnName',
+          name: 'snsTopicArn',
           message: input.question,
           validate: amplify.inputValidation(input),
           default: input.default,
@@ -41,7 +41,7 @@ async function subscribeToExistingSnsTopic(context){
     let { topicArn } = answers
     return {
         addSnsSubscription: snsSubscription,
-        topicArn
+        snsTopicArn
     }
 }
 
@@ -66,7 +66,7 @@ async function createNewSnsTopic(context){
             addNewSnsTopic: createSNSTopic
         }
     }
-    let index = questionNames.indexOf('topicName')
+    let index = questionNames.indexOf('snsTopicName')
     let input = inputs[index]
     questions = [
         {
@@ -78,23 +78,23 @@ async function createNewSnsTopic(context){
     }];
 
     answers = await inquirer.prompt(questions); 
-    let { topicName } = answers
+    let { snsTopicName } = answers
     return {
         addNewSnsTopic: createSNSTopic,
-        topicName
+        snsTopicName
     }
 }
 
 async function getSNSProducerDetails(context){
     const { amplify } = context;
     const inputs = questions.template.inputs;
-    let index = questionNames.indexOf('addSnSProducer')
+    let index = questionNames.indexOf('addSnsProducer')
     let input = inputs[index]
 
     const questions = [
         {
             type: inputs.type,
-            name: 'addSnSProducer',
+            name: 'addSnsProducer',
             message: inputs.question,
             validate: amplify.inputValidation(inputs),
             default: 'producer',
@@ -102,18 +102,18 @@ async function getSNSProducerDetails(context){
     ];
 
     let answers = await inquirer.prompt(questions);
-    const { addSnSProducer } = answers
+    const { addSnsProducer } = answers
 
-    if (!addSnSProducer) {
+    if (!addSnsProducer) {
         return answers
     }
 
-    let index = questionNames.indexOf('producerName')
+    let index = questionNames.indexOf('snsProducerName')
     let input = inputs[index]
     const questions = [
         {
             type: input.type,
-            name: 'producerName',
+            name: 'snsProducerName',
             message: input.question,
             validate: amplify.inputValidation(input),
             default: 'producer',
@@ -123,7 +123,7 @@ async function getSNSProducerDetails(context){
     let producerDetails = await inquirer.prompt(questions);
     return {
         ...producerDetails,
-        addSnSProducer
+        addSnsProducer
     }
 
 }
@@ -150,12 +150,12 @@ async function getSNSConsumerDetails(context){
     if (!addSnsConsumer) {
         return answers
     }
-    let index = questionNames.indexOf('consumerName')
+    let index = questionNames.indexOf('snsConsumerName')
     let input = inputs[index]
     questions = [
         {
             type: input.type,
-            name: 'consumerName',
+            name: 'snsConsumerName',
             message: input.question,
             validate: amplify.inputValidation(input),
             default: 'consumer',

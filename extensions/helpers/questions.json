@@ -9,7 +9,7 @@
         "required": true
       },
       {
-        "key": "topicArnName",
+        "key": "snsTopicArn",
         "question": "Provide the ARN for your existing SNS topic resource:",
         "required": true
       },
@@ -21,7 +21,7 @@
         "required": true
       },
       {
-        "key": "topicName",
+        "key": "snsTopicName",
         "question": "Provide a friendly name for your SNS topic resource:",
         "validation": {
           "operator": "regex",
@@ -38,14 +38,14 @@
         "required": true
       },
       {
-        "key": "addSqsConsumer",
+        "key": "addSnsConsumer",
         "type": "confirm",
         "question": "Do you wish to add an SNS consumer queue:",
         "default": true,
         "required": true
       },
       {
-        "key": "producerName",
+        "key": "snsProducerName",
         "question": "Provide a friendly name for your SNS producer queue:",
         "validation": {
           "operator": "regex",
@@ -55,7 +55,7 @@
         "required": true
       },
       {
-        "key": "consumerName",
+        "key": "snsConsumerName",
         "question": "Provide a friendly name for your SNS consumer queue:",
         "validation": {
           "operator": "regex",

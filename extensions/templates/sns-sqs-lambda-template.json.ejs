@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
   "Resources": {
-    <% if (snsConsumerSubscription) { %>   
+    <% if (addSnsSubscription) { %>   
     {
       "<%= snsConsumerName %>Queue": {
         "Type" : "AWS::SQS::Queue",
@@ -17,7 +17,7 @@
           "Endpoint": {
             "Fn::GetAtt": ["<%= snsConsumerName %>", "Arn"]
           },
-          "TopicArn" : "<%= topicArn %>"
+          "TopicArn" : "<%= snsTopicArn %>"
         }
     },
     "<%= snsConsumerName %>Policy": {
@@ -41,9 +41,9 @@
           ]
         },       
     <% }; %>   
-    <% if (snsProducerSubscription) { %>     
+    <% if (addSnsProducer) { %>     
       {
-        "<%= snsConsumerName %>Queue": {
+        "<%= snsProducerName %>Queue": {
           "Type" : "AWS::SQS::Queue",
           "Properties": {
             "QueueName": "<%= snsProducerName %>Queue"
