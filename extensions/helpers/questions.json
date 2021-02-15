@@ -2,7 +2,26 @@
   "template": {
     "inputs": [
       {
-        "key": "topicName",
+        "key": "snsSubscription",
+        "question": "Do you wish to subscribe to an existing SNS topic:",
+        "type": "confirm",
+        "default": true,
+        "required": true
+      },
+      {
+        "key": "snsTopicArn",
+        "question": "Provide the ARN for your existing SNS topic resource:",
+        "required": true
+      },
+      {
+        "key": "createSNSTopic",
+        "question": "Do you wish to create a new SNS topic:",
+        "type": "confirm",
+        "default": false,
+        "required": true
+      },
+      {
+        "key": "snsTopicName",
         "question": "Provide a friendly name for your SNS topic resource:",
         "validation": {
           "operator": "regex",
@@ -12,8 +31,22 @@
         "required": true
       },
       {
-        "key": "producerName",
-        "question": "Provide a friendly name for your SQS producer resource:",
+        "key": "addSnsProducer",
+        "type": "confirm",
+        "question": "Do you wish to add an SNS producer queue:",
+        "default": true,
+        "required": true
+      },
+      {
+        "key": "addSnsConsumer",
+        "type": "confirm",
+        "question": "Do you wish to add an SNS consumer queue:",
+        "default": true,
+        "required": true
+      },
+      {
+        "key": "snsProducerName",
+        "question": "Provide a friendly name for your SNS producer queue:",
         "validation": {
           "operator": "regex",
           "value": "^[a-zA-Z0-9]+$",
@@ -22,8 +55,8 @@
         "required": true
       },
       {
-        "key": "consumerName",
-        "question": "Provide a friendly name for your SQS consumer resource:",
+        "key": "snsConsumerName",
+        "question": "Provide a friendly name for your SNS consumer queue:",
         "validation": {
           "operator": "regex",
           "value": "^[a-zA-Z0-9]+$",
@@ -32,14 +65,94 @@
         "required": true
       },
       {
-        "key": "lambda",
-        "question": "Provide a friendly name for your Lambda resource to be used as a label in the project:",
+        "key": "addPublishUserPolicy",
+        "question": "Provide a producer user policy for your SNS producer queue:",
+        "type": "confirm",
+        "default": false,
+        "required": true
+      },
+      {
+        "key": "addPublishGroupPolicy",
+        "question": "Provide a producer user group policy for your producer user:",
+        "type": "confirm",
+        "default": false,
+        "required": true
+      },
+      {
+        "key": "addPublishUser",
+        "question": "Provide a producer user for your producer policy:",
+        "type": "confirm",
+        "default": false,
+        "required": true
+      },
+      {
+        "key": "addConsumerUserPolicy",
+        "question": "Provide a consumer user policy for your SNS consumer queue:",
+        "type": "confirm",
+        "default": false,
+        "required": true
+      },
+      {
+        "key": "addConsumerGroupPolicy",
+        "question": "Provide a consumer user group policy for your consumer user:",
+        "type": "confirm",
+        "default": false,
+        "required": true
+      },
+      {
+        "key": "addConsumerUser",
+        "question": "Provide a consumer user for your consumer policy:",
+        "type": "confirm",
+        "default": false,
+        "required": true
+      },
+      {
+        "key": "addConsumerLambda",
+        "question": "Add a lambda to be triggered by SNS consumer queue event:",
+        "type": "confirm",
+        "default": false,
+        "required": true
+      },
+      {
+        "key": "lambdaName",
+        "question": "Provide a friendly name for your Lambda resource:",
         "validation": {
           "operator": "regex",
           "value": "^[a-zA-Z0-9]+$",
           "onErrorMsg": "Resource name should be alphanumeric"
         },
         "required": true
+      },
+      {
+        "key": "runtime",
+        "question": "Select the runtime for the lambda resource:",
+        "type": "list",
+        "options": [
+          {
+            "name": "NodeJS",
+            "value": "nodejs12.x"
+          },
+          {
+            "name": "Python 3.8",
+            "value": "python3.8"
+          },
+          {
+            "name": "Python 3.7",
+            "value": "python3.7"
+          },
+          {
+            "name": "Python 2.7",
+            "value": "python2.7"
+          }
+        ],
+        "required": true
+      },
+      {
+        "type": "number",
+        "key": "timeout",
+        "question": "What should be the timeout in secs for the Lambda resource:",
+        "required": true,
+        "default": 60
       }
     ]
   }

@@ -1,8 +1,16 @@
 const fs = require('fs');
 const path = require('path');
-const { copyFilesToS3 } = require('./helpers/template-staging');
-const { getProjectName, generateQuestions, getLambdaName, getSNSDetails, getSQSDetails } = require('./helpers/template-question');
+// const { copyFilesToS3 } = require('./helpers/template-staging');
+const { 
+    generateQuestions, 
+    subscribeToExistingSnsTopic,
+    createNewSnsTopic,
+    getSNSConsumerDetails, 
+    getSNSProducerDetails,
+    getLambdaDetails 
+} = require('./helpers/template-question');
 const { yamlParse, yamlDump } = require('yaml-cfn');
+// const { prompts } = require('inquirer');
 
 module.exports = (context) => {
     context.createTemplate = async () => {
@@ -16,13 +24,32 @@ async function createTemplate(context){
         providerPlugin: 'awscloudformation',
     };
 
-    let lambdaName = await getLambdaName(context);
-    let snsDetails = await getSNSDetails(context);    
-    let sqsDetails = await getSQSDetails(context);    
-    let props = {}
-    props.lambdaName = lambdaName;
-    props.snsDetails = snsDetails;
-    props.sqsDetails = sqsDetails;
+    let snsSubscription = await subscribeToExistingSnsTopic(context)
+    let snsTopic = await createNewSnsTopic(context)
+    let snsConsumer = await getSNSConsumerDetails(context)
+    let snsProducer = await getSNSProducerDetails(context)    
+    const hasProducer = snsProducer.addSnsProducer
+    const hasConsumer = snsConsumer.addSnsConsumer
+    let consumerPolicy = hasProducer ? await getConsumerPolicyDetails(context) : {}
+    let producerPolicy = hasConsumer ? await getProducerPolicyDetails(context) : {}   
+    let lambdaDetails = await getLambdaDetails(context);
+
+    let props = {
+        // addSnsSubscription, topicArn
+        ...snsSubscription,
+        // addNewSnsTopic, snsTopicName
+        ...snsTopic,
+        // addSnsConsumer, snsConsumerName
+        ...snsConsumer,
+        // addSnsProducer, snsProducerName
+        ...snsProducer,
+        // addConsumerUserPolicy, addConsumerGroupPolicy, addConsumerUser
+        ...consumerPolicy,
+        // addPublishUserPolicy, addPublishGroupPolicy, addPublishUser
+        ...producerPolicy,
+        // addConsumerLambda, lambdaName
+        ...lambdaDetails
+    }
     props.options = options;
     props.root = path.join(__dirname, 'templates/sns-sqs-lambda-template.json')
     prepareCloudFormation(context,props);
@@ -42,27 +69,22 @@ async function prepareCloudFormation(context, props){
     await stageRoot(context, props);
 }
 
-function replaceTemplateName(rootTemplate, props) {
-    rootTemplate = rootTemplate.replace('<sns-topic-name>', props.snsDetails.topicName)
-    rootTemplate = rootTemplate.replace('<sqs-consumer>', props.sqsDetails.consumerName)
-    rootTemplate = rootTemplate.replace('<sqs-producer>', props.sqsDetails.producerName)
-    rootTemplate = rootTemplate.replace('<lambda-name>', props.lambdaName)
-    return rootTemplate    
+function renderTemplate(rootTemplate, props) {
+    return ejs.render(rootTemplate, props);
 }
-
 
 async function handleYAML(context, props){
     let rootTemplate = yamlParse(fs.readFileSync(props.root,'utf8'));
-    rootTemplate = await prepareTemplate(context, props, rootTemplate);
-    rootTemplate = replaceTemplateName(rootTemplate, props)
+    rootTemplate = renderTemplate(rootTemplate, props)
+    rootTemplate = await prepareTemplate(context, props, rootTemplate);    
     rootTemplate = await generateQuestions(context, rootTemplate);
     fs.writeFileSync(props.root, yamlDump(rootTemplate, null, 4));
 }
 
 async function handleJSON(context, props){
     let rootTemplate = JSON.parse(fs.readFileSync(props.root));
-    rootTemplate = await prepareTemplate(context, props, rootTemplate);
-    rootTemplate = replaceTemplateName(rootTemplate, props)
+    rootTemplate = renderTemplate(rootTemplate, props)
+    rootTemplate = await prepareTemplate(context, props, rootTemplate);    
     rootTemplate = await generateQuestions(context, rootTemplate);
     fs.writeFileSync(props.root, JSON.stringify(rootTemplate, null, 4));
 }
@@ -90,12 +112,12 @@ async function stageRoot(context, props){
         {
           dir: '/',
           template: `${props.root}`,
-          target: `${targetDir}/function/${props.projectName}/${props.projectName}-sns-sqs-template.${props.ending}`,
+          target: `${targetDir}/function/${props.name}/${props.projectName}-sns-sqs-template.${props.ending}`,
         },
       ];
       context.amplify.updateamplifyMetaAfterResourceAdd(
         "sqs",
-        props.projectName,
+        props.name,
         props.options,
       );
       await context.amplify.copyBatch(context, copyJobs, props);      
