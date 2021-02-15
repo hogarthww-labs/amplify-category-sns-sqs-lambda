@@ -313,17 +313,27 @@ async function getLambdaDetails(context){
         }
     }
 
-
     let index = questionNames.indexOf('lambdaName')
     let input = inputs[index]    
-    const questions = [
-        {
+    const lambdaQ = {
           type: inputs.type,
           name: 'lambdaName',
           message: inputs.question,
           validate: amplify.inputValidation(input),
           default: 'consumer',
-    }];
+    };
+    
+    let index = questionNames.indexOf('runtime')
+    let input = inputs[index]    
+    const runtimeQ = {
+          type: inputs.type,
+          name: 'runtime',
+          message: inputs.question,
+          validate: amplify.inputValidation(input),
+          default: 'nodejs12.x',
+    };
+
+    const questions = [lambdaQ, runtimeQ]    
 
     answers = await inquirer.prompt(questions);
     return {

@@ -317,8 +317,8 @@
         "Role": {
           "Fn::GetAtt": ["LambdaExecutionRole", "Arn"]
         },
-        "Runtime": "nodejs12.x",
-        "Timeout": 60,
+        "Runtime": "<%= runtime %>",
+        "Timeout": <%= timeout %>,
         "MemorySize": 512
       }
     },
