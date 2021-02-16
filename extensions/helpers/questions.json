@@ -86,6 +86,20 @@
         "required": true
       },
       {
+        "key": "addPublishSnsUserRole",
+        "question": "Provide an IAM user role to produce SNS topic messages:",
+        "type": "confirm",
+        "default": false,
+        "required": true
+      },
+      {
+        "key": "addConsumeSQSUserRole",
+        "question": "Provide an IAM user role to consume SQS queue:",
+        "type": "confirm",
+        "default": false,
+        "required": true
+      },
+      {
         "key": "addConsumerUserPolicy",
         "question": "Provide a consumer user policy for your SNS consumer queue:",
         "type": "confirm",

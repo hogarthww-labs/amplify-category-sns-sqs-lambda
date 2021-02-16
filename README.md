@@ -33,6 +33,66 @@ The resource will assume the function codes can be found in `./src` relative to 
 
 You can use the [sqs-utils](https://github.com/hogarthww-labs/sqs-utils) module to facilitate working with SQS, including [Producer](https://www.npmjs.com/package/sqs-producer) and [Consumer](https://www.npmjs.com/package/sqs-consumer).
 
+## Users groups and policies
+
+The CLI will ask if you want to add an SNS Consumer and an SNS Producer
+
+For the SNS Producer it will ask to add
+
+- `PublishUserPolicy`
+- `PublishGroupPolicy`
+- `PublishUser`
+
+For the SNS Consumer it will ask to add
+
+The SNS Consumer is an SQS queue that can be linked to a Lambda that is triggered on each message on the queue.
+
+The Publish User is generated with an empty login profile that you will have to fill in manually.
+
+```json
+  "MyPublishUser": {
+    "Type": "AWS::IAM::User",
+    "Properties": {
+      "LoginProfile": {
+      }
+    }
+  },
+```
+
+At a minimum add a password. See [IAM user guide](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/quickref-iam.html) for more details.
+
+```json
+"LoginProfile" : {
+    "Password" : "myP@ssW0rd"
+},
+```
+
+### Policies
+
+You have the option to add
+
+- publish user policy which allows a user to publish messages to SNS
+- publish group policy which allows members of that group to publish to SNS
+- consumer user policy which allows a user to receive messages from SQS queue
+- consumer group policy which allows members of that group to delete or receive messages from the SQS consumer queue
+
+## User roles
+
+As an alternative create an user role to publish SNS messages. Then any user with that role can publish.
+
+You can also add a user role to consume SQS messages on the SQS consumer queue (linked to the SNS topic).
+
+## Managing access to SQS queues
+
+There are two ways to give your users permissions to your Amazon SQS queues: using the Amazon SQS policy system and using the IAM policy system. You can use either system, or both, to attach policies to users or roles. In most cases, you can achieve the same result using either system.
+
+### Resources
+
+- [IAM Identities (users, groups, and roles)](https://docs.aws.amazon.com/IAM/latest/UserGuide/id.html)
+- [Using identity-based policies with Amazon SQS](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-using-identity-based-policies.html)
+- [Overview of managing access in Amazon SQS](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-overview-of-managing-access.html)
+- [Basic examples of IAM policies for Amazon SQS](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-basic-examples-of-iam-policies.html)
+
 ## Runtimes
 
 [Lambda runtime values](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-lambda-function.html)

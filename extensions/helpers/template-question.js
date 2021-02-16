@@ -172,6 +172,27 @@ async function getSNSConsumerDetails(context){
 async function getConsumerPolicyDetails(context){
     const { amplify } = context;
     const inputs = questions.template.inputs;
+
+    addConsumeSQSUserRole
+
+    let index = questionNames.indexOf('addConsumeSQSUserRole')
+    let input = inputs[index]
+    let questions = [
+        {
+            type: inputs.type,
+            name: 'addConsumerUserPolicy',
+            message: inputs.question,
+            validate: amplify.inputValidation(input),
+            default: false,
+        }
+    ]
+    
+    let answers = await inquirer.prompt(questions);
+    let { addConsumeSQSUserRole } = answers
+    if (!addConsumeSQSUserRole) {
+        return answers
+    }    
+
     let index = questionNames.indexOf('addConsumerUserPolicy')
     let input = inputs[index]
     let questions = [
@@ -187,7 +208,10 @@ async function getConsumerPolicyDetails(context){
     let answers = await inquirer.prompt(questions);
     let { addConsumerUserPolicy } = answers
     if (!addConsumerUserPolicy) {
-        return answers
+        return {
+            addConsumeSQSUserRole,
+            ...answers
+        }
     }    
     let index = questionNames.indexOf('addConsumerGroupPolicy')
     let input = inputs[index]    
@@ -206,6 +230,7 @@ async function getConsumerPolicyDetails(context){
 
     if (!addConsumerGroupPolicy) {
         return {
+            addConsumeSQSUserRole,
             addConsumerUserPolicy,
             addConsumerGroupPolicy
         }
@@ -224,6 +249,7 @@ async function getConsumerPolicyDetails(context){
     let answers = await inquirer.prompt(questions);
     return {
         ...answers,
+        addConsumeSQSUserRole,
         addConsumerUserPolicy,
         addConsumerGroupPolicy,
     }
@@ -232,6 +258,26 @@ async function getConsumerPolicyDetails(context){
 async function getProducerPolicyDetails(context){
     const { amplify } = context;
     const inputs = questions.template.inputs;
+
+    let index = questionNames.indexOf('addPublishSnsUserRole')
+    let input = inputs[index]
+    let questions = [
+        {
+            type: inputs.type,
+            name: 'addPublishSnsUserRole',
+            message: inputs.question,
+            validate: amplify.inputValidation(input),
+            default: false,
+        }
+    ]
+
+    let answers = await inquirer.prompt(questions);
+    let { addPublishSnsUserRole } = answers
+
+    if (!addPublishSnsUserRole) {
+        return answers
+    }
+    
     let index = questionNames.indexOf('addPublishUserPolicy')
     let input = inputs[index]    
     let questions = [
@@ -248,7 +294,10 @@ async function getProducerPolicyDetails(context){
     let { addPublishUserPolicy } = answers
 
     if (!addPublishUserPolicy) {
-        return answers
+        return {
+            addPublishSnsUserRole,
+            ...answers
+        }
     }
     let index = questionNames.indexOf('addPublishGroupPolicy')
     let input = inputs[index]    
@@ -267,6 +316,7 @@ async function getProducerPolicyDetails(context){
 
     if (!addPublishGroupPolicy) {
         return {
+            addPublishSnsUserRole,
             addPublishUserPolicy,
             addPublishGroupPolicy
         }
@@ -286,6 +336,7 @@ async function getProducerPolicyDetails(context){
     let answers = await inquirer.prompt(questions);
     return {
         ...answers,
+        addPublishSnsUserRole,
         addPublishUserPolicy,
         addPublishGroupPolicy
     };

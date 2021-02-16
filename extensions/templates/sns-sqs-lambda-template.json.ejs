@@ -108,7 +108,7 @@
     },
     <% if (addPublishUserPolicy) { %>
     <% if (addPublishUser) { %>
-      "MyPublishUser": {
+    "MyPublishUser": {
       "Type": "AWS::IAM::User",
       "Properties": {
         "LoginProfile": {
@@ -121,6 +121,99 @@
         "UserName": {
           "Ref": "MyPublishUser"
         }
+      }
+    },
+    <% } %>
+    <% if (addConsumeSQSUserRole) { %>    
+      "SQSConsumeRole": {
+        "Type" : "AWS::IAM::Role",
+        "Properties" : {
+          "AssumeRolePolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Principal": { 
+                  "AWS": "arn:aws:iam::<%= accountID %>:role/<%= roleName %>" 
+                }
+                },
+                "Action": [
+                  "sts:AssumeRole"
+                ]
+              }
+            ]
+          },          
+          "Description" : "SQS consumer role",
+          "Policies" : [ 
+            {
+              "PolicyName": "<%= snsTopicName %>ConsumeIAMRolePolicy",
+              "PolicyDocument": {
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Action": ["sqs:DeleteMessage", "sqs:ReceiveMessage"],
+                    "Resource": [
+                      {
+                        "Fn::GetAtt": ["<%= snsConsumerName %>", "Arn"]
+                      },
+                      {
+                        "Fn::GetAtt": ["<%= snsProducerName %>", "Arn"]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }        
+          ],
+          "RoleName" : "SQSConsumerRole",
+          "Tags" : [ 
+            "SQS",
+            "Consumer" 
+          ]
+        }
+      },
+      <% } %>    
+    <% if (addPublishSnsUserRole) { %>    
+    "SNSPublishRole": {
+      "Type" : "AWS::IAM::Role",
+      "Properties" : {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": { 
+                "AWS": "arn:aws:iam::<%= accountID %>:role/<%= roleName %>" 
+              }
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },          
+        "Description" : "SNS publish role",
+        "Policies" : [ 
+          {
+            "PolicyName": "<%= snsTopicName %>PublishIAMRolePolicy",
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": ["sns:Publish"],
+                  "Resource": {
+                    "Ref": "<%= snsTopicName %>"
+                  }
+                }
+              ]
+            }
+          }        
+        ],
+        "RoleName" : "SNSPublishRole",
+        "Tags" : [ 
+          "SNS",
+          "Publish" 
+        ]
       }
     },
     <% } %>
@@ -153,9 +246,11 @@
           "Ref": "MyPublishTopicGroup"
         },
         "Users": [
+          <% if (addPublishUser) { %>
           {
             "Ref": "MyPublishUser"
           }
+          <% } %>
         ]
       }
     },
@@ -213,9 +308,11 @@
           "Ref": "MyRDMessageQueueGroup"
         },
         "Users": [
+          <% if (addConsumerUser) { %>
           {
             "Ref": "<%= snsConsumerName %>User"
           }
+          <% } %>
         ]
       }
     },
@@ -229,7 +326,7 @@
               "Principal": {
                 "Service": "sns.amazonaws.com"
               },
-              "Action": ["sqs:SendMessage"],
+              "Action": ["sqs:ReceiveMessage"],
               "Resource": "*",
               "Condition": {
                 "ArnEquals": {
