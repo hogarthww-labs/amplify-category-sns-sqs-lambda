@@ -1,6 +1,7 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
   "Parameters": {
+    <% if (addPublishUser) { %>    
     "PublishUserName": {
       "Type": "String"
     },
@@ -8,6 +9,7 @@
       "Type": "String"
       "NoEcho": true,
     }
+    <% } %>
   },    
   "Resources": {
     <% if (addSnsSubscription) { %>   
