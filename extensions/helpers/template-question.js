@@ -1,6 +1,5 @@
 const questions = require('./questions.json');
 const inquirer = require('inquirer');
-const fs = require('fs');
 
 const questionNames = questions.map(q => q.name)
 
@@ -93,10 +92,10 @@ async function getSNSProducerDetails(context){
 
     const questions = [
         {
-            type: inputs.type,
+            type: input.type,
             name: 'addSnsProducer',
-            message: inputs.question,
-            validate: amplify.inputValidation(inputs),
+            message: input.question,
+            validate: amplify.inputValidation(input),
             default: 'producer',
         }
     ];
@@ -179,9 +178,9 @@ async function getConsumerPolicyDetails(context){
     let input = inputs[index]
     let questions = [
         {
-            type: inputs.type,
+            type: input.type,
             name: 'addConsumerUserPolicy',
-            message: inputs.question,
+            message: input.question,
             validate: amplify.inputValidation(input),
             default: false,
         }
@@ -197,9 +196,9 @@ async function getConsumerPolicyDetails(context){
     let input = inputs[index]
     let questions = [
         {
-            type: inputs.type,
+            type: input.type,
             name: 'addConsumerUserPolicy',
-            message: inputs.question,
+            message: input.question,
             validate: amplify.inputValidation(input),
             default: false,
         }
@@ -263,9 +262,9 @@ async function getProducerPolicyDetails(context){
     let input = inputs[index]
     let questions = [
         {
-            type: inputs.type,
+            type: input.type,
             name: 'addPublishSnsUserRole',
-            message: inputs.question,
+            message: input.question,
             validate: amplify.inputValidation(input),
             default: false,
         }
@@ -349,9 +348,9 @@ async function getLambdaDetails(context){
     let input = inputs[index]    
     const questions = [
         {
-          type: inputs.type,
+          type: input.type,
           name: 'addConsumerLambda',
-          message: inputs.question,
+          message: input.question,
           validate: amplify.inputValidation(input),
           default: 'consumer',
     }];
@@ -367,9 +366,9 @@ async function getLambdaDetails(context){
     let index = questionNames.indexOf('lambdaName')
     let input = inputs[index]    
     const lambdaQ = {
-          type: inputs.type,
+          type: input.type,
           name: 'lambdaName',
-          message: inputs.question,
+          message: input.question,
           validate: amplify.inputValidation(input),
           default: 'consumer',
     };
@@ -377,9 +376,9 @@ async function getLambdaDetails(context){
     let index = questionNames.indexOf('runtime')
     let input = inputs[index]    
     const runtimeQ = {
-          type: inputs.type,
+          type: input.type,
           name: 'runtime',
-          message: inputs.question,
+          message: input.question,
           validate: amplify.inputValidation(input),
           default: 'nodejs12.x',
     };
