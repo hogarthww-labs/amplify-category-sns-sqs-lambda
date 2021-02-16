@@ -38,7 +38,7 @@ async function subscribeToExistingSnsTopic(context){
     }];
 
     answers = await inquirer.prompt(questions); 
-    let { topicArn } = answers
+    let { snsTopicArn } = answers
     return {
         addSnsSubscription: snsSubscription,
         snsTopicArn
@@ -48,7 +48,7 @@ async function subscribeToExistingSnsTopic(context){
 async function createNewSnsTopic(context){
     const { amplify } = context;
     const inputs = questions.template.inputs;
-    let index = questionNames.indexOf('createSNSTopic')
+    let index = questionNames.indexOf('SNSTopic')
     let input = inputs[index]
     let questions = [
         {
