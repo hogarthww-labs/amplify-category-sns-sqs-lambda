@@ -143,7 +143,7 @@
     },
     <% } %>
     <% if (addConsumeSQSUserRole) { %>    
-      "SQSConsumeRole": {
+      "<%= sqsConsumeRoleName %>": {
         "Type" : "AWS::IAM::Role",
         "Properties" : {
           "AssumeRolePolicyDocument": {
@@ -152,7 +152,7 @@
               {
                 "Effect": "Allow",
                 "Principal": { 
-                  "AWS": "arn:aws:iam::<%= accountID %>:role/<%= roleName %>" 
+                  "AWS": "arn:aws:iam::${AWS::AccountId}:role/*" 
                 }
                 },
                 "Action": [
@@ -169,7 +169,12 @@
                 "Statement": [
                   {
                     "Effect": "Allow",
-                    "Action": ["sqs:DeleteMessage", "sqs:ReceiveMessage"],
+                    "Action": [
+                      <% if (consumerCanDelete) { %>
+                      "sqs:DeleteMessage", 
+                      <% } >
+                      "sqs:ReceiveMessage"
+                    ],
                     "Resource": [
                       {
                         "Fn::GetAtt": ["<%= snsConsumerName %>", "Arn"]
@@ -183,7 +188,7 @@
               }
             }        
           ],
-          "RoleName" : "SQSConsumerRole",
+          "RoleName" : "<%= sqsConsumeRoleName %>",
           "Tags" : [ 
             "SQS",
             "Consumer" 

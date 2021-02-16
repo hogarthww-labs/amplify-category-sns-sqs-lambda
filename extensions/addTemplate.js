@@ -34,7 +34,12 @@ async function createTemplate(context){
     let producerPolicy = hasConsumer ? await getProducerPolicyDetails(context) : {}   
     let lambdaDetails = await getLambdaDetails(context);
 
+    // TODO: get from questions
+    const sqsConsumeRoleName = "sqsConsumerRole"
+    const consumerCanDelete = true
     let props = {
+        sqsConsumeRoleName,
+        consumerCanDelete,
         // addSnsSubscription, topicArn
         ...snsSubscription,
         // addNewSnsTopic, snsTopicName

@@ -100,6 +100,19 @@
         "required": true
       },
       {
+        "key": "sqsConsumerRoleName",
+        "question": "Provide SQS consumer role name:",
+        "default": "sqsConsumerRole",
+        "required": true
+      },
+      {
+        "key": "consumerCanDelete",
+        "question": "Allow SQS consumer to delete messages:",
+        "type": "confirm",
+        "default": false,
+        "required": true
+      },
+      {
         "key": "addConsumerUserPolicy",
         "question": "Provide a consumer user policy for your SNS consumer queue:",
         "type": "confirm",
