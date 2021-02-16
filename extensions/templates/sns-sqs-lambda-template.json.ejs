@@ -1,5 +1,14 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "PublishUserName": {
+      "Type": "String"
+    },
+    "PublishPassword": {
+      "Type": "String"
+      "NoEcho": true,
+    }
+  },    
   "Resources": {
     <% if (addSnsSubscription) { %>   
     {
@@ -111,7 +120,14 @@
     "MyPublishUser": {
       "Type": "AWS::IAM::User",
       "Properties": {
+        "UserName": {
+          "Ref" : "PublishUserName"
+        },
         "LoginProfile": {
+          "Password": {
+            "Ref": "PublishPassword"
+          },
+          "PasswordResetRequired": true          
         }
       }
     },

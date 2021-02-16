@@ -47,23 +47,34 @@ For the SNS Consumer it will ask to add
 
 The SNS Consumer is an SQS queue that can be linked to a Lambda that is triggered on each message on the queue.
 
-The Publish User is generated with an empty login profile that you will have to fill in manually.
+The Publish User is generated with a username and a login profile that references parameters that must be supplied when deployed to AWS on push. Note that the password is configured with `"NoEcho": true` so that it is not visible.
 
 ```json
-  "MyPublishUser": {
-    "Type": "AWS::IAM::User",
-    "Properties": {
-      "LoginProfile": {
-      }
-    }
+"Parameters": {
+  "PublishUserName": {
+    "Type": "String"
   },
+  "PublishPassword": {
+    "Type": "String"
+    "NoEcho": true,
+  }
+},    
 ```
 
-At a minimum add a password. See [IAM user guide](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/quickref-iam.html) for more details.
-
 ```json
-"LoginProfile" : {
-    "Password" : "myP@ssW0rd"
+"MyPublishUser": {
+  "Type": "AWS::IAM::User",
+  "Properties": {
+    "UserName": {
+      "Ref" : "PublishUserName"
+    },
+    "LoginProfile": {
+      "Password": {
+        "Ref": "PublishPassword"
+      },
+      "PasswordResetRequired": true          
+    }
+  }  
 },
 ```
 
@@ -78,7 +89,7 @@ You have the option to add
 
 ## User roles
 
-As an alternative create an user role to publish SNS messages. Then any user with that role can publish.
+You can create an user role to publish SNS messages. Then any user with that role can publish.
 
 You can also add a user role to consume SQS messages on the SQS consumer queue (linked to the SNS topic).
 
