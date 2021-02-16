@@ -143,7 +143,7 @@
     },
     <% } %>
     <% if (addConsumeSQSUserRole) { %>    
-      "<%= sqsConsumeRoleName %>": {
+      "<%= sqsConsumerRoleName %>": {
         "Type" : "AWS::IAM::Role",
         "Properties" : {
           "AssumeRolePolicyDocument": {
@@ -188,7 +188,7 @@
               }
             }        
           ],
-          "RoleName" : "<%= sqsConsumeRoleName %>",
+          "RoleName" : "<%= sqsConsumerRoleName %>",
           "Tags" : [ 
             "SQS",
             "Consumer" 

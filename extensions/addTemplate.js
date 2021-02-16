@@ -35,10 +35,10 @@ async function createTemplate(context){
     let lambdaDetails = await getLambdaDetails(context);
 
     // TODO: get from questions
-    const sqsConsumeRoleName = "sqsConsumerRole"
+    const sqsConsumerRoleName = "sqsConsumerRole"
     const consumerCanDelete = true
     let props = {
-        sqsConsumeRoleName,
+        sqsConsumerRoleName,
         consumerCanDelete,
         // addSnsSubscription, topicArn
         ...snsSubscription,
